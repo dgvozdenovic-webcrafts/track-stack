@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "es2017"
+        ],
+        "module": "commonjs",
+        "outDir": "../../dist/functions",
+        "sourceMap": true,
+        "target": "es2017",
+        "baseUrl": "./"
+    },
+    "compileOnSave": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+}
