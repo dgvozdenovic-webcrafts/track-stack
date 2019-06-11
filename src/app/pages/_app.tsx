@@ -1,29 +1,31 @@
-import {
-  AppComponentProps,
-  Container,
-} from 'next/app'
+import withRedux from 'next-redux-wrapper'
+import App, { Container } from 'next/app'
 import React from 'react'
-import {
-  Provider,
-} from 'react-redux'
-import withReduxStore, { Store } from '../lib/with-redux-store'
+import { Provider } from 'react-redux'
 
-interface IMyAppProps {
-  reduxStore: Store,
-  pageProps: any
+import initStore from '../store'
+interface IEnhancedAppProps {
+  store: any,
+}
+class EnhancedApp extends App<IEnhancedAppProps> {
+  public static async getInitialProps({ Component, ctx }) {
+    return {
+      pageProps: Component.getInitialProps
+        ? await Component.getInitialProps(ctx)
+        : {},
+    }
+  }
+
+  public render() {
+    const { Component, pageProps, store } = this.props
+    return (
+      <Container>
+        <Provider store={store}>
+          <Component {...pageProps} />
+        </Provider>
+      </Container>
+    )
+  }
 }
 
-export default withReduxStore(
-  class MyApp extends React.Component<IMyAppProps & AppComponentProps> {
-    public render() {
-      const { Component, pageProps, reduxStore } = this.props
-      return (
-        <Container>
-          <Provider store={reduxStore}>
-            <Component {...pageProps} />
-          </Provider>
-        </Container>
-      )
-    }
-  },
-)
+export default withRedux(initStore)(EnhancedApp)
