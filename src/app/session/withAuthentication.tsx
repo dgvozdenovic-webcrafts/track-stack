@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { firebase } from '../firebase'
+import { SessionActions } from '../reducers/session'
 
 const withAuthentication = (Component) => {
     class WithAuthentication extends React.Component<any, any> {
@@ -23,7 +24,7 @@ const withAuthentication = (Component) => {
     }
 
     const mapDispatchToProps = (dispatch) => ({
-        onSetAuthUser: (authUser) => dispatch({ type: 'AUTH_USER_SET', authUser }),
+        onSetAuthUser: (authUser) => dispatch({ type: SessionActions.AUTH_USER_SET, authUser }),
     })
 
     return connect(null, mapDispatchToProps)(WithAuthentication)

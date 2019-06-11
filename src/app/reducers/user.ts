@@ -1,3 +1,7 @@
+export enum UserActions {
+    USER_SET = 'USERSET',
+}
+
 const INITIAL_STATE = {
     users: [],
 }
@@ -9,7 +13,7 @@ const applySetUsers = (state, action) => ({
 
 function userReducer(state = INITIAL_STATE, action) {
     switch (action.type) {
-        case 'USERS_SET': {
+        case UserActions.USER_SET: {
             return applySetUsers(state, action)
         }
         default: return state

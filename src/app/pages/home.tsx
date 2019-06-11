@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 
 import { AppWithAuthorization } from '../components/App'
 import { db } from '../firebase'
+import { UserActions } from '../reducers/user'
 
 interface IHomePageProps {
     users: any,
@@ -24,8 +25,8 @@ class HomePage extends Component<IHomePageProps, IHomePageState> {
     public componentDidMount() {
         const { onSetUsers } = this.props
 
-        db.onceGetUsersStream((snapshot) =>
-        onSetUsers(fromObjectToList(snapshot.val())))
+        db.streamGetUsers((snapshot) =>
+            onSetUsers(fromObjectToList(snapshot.val())))
     }
 
     public render() {
@@ -54,7 +55,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    onSetUsers: (users) => dispatch({ type: 'USERS_SET', users }),
+    onSetUsers: (users) => dispatch({ type: UserActions.USER_SET, users }),
 })
 
 export default connect(
