@@ -3,6 +3,7 @@ import App, { Container } from 'next/app'
 import React from 'react'
 import { Provider } from 'react-redux'
 
+import ReduxDevTools from '../components/DevTools'
 import initStore from '../store'
 interface IEnhancedAppProps {
   store: any,
@@ -21,6 +22,7 @@ class EnhancedApp extends App<IEnhancedAppProps> {
     return (
       <Container>
         <Provider store={store}>
+          <ReduxDevTools />
           <Component {...pageProps} />
         </Provider>
       </Container>
