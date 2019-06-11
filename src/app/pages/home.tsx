@@ -24,9 +24,8 @@ class HomePage extends Component<IHomePageProps, IHomePageState> {
     public componentDidMount() {
         const { onSetUsers } = this.props
 
-        db.onceGetUsers().then((snapshot) =>
-            onSetUsers(fromObjectToList(snapshot.val())),
-        )
+        db.onceGetUsersStream((snapshot) =>
+        onSetUsers(fromObjectToList(snapshot.val())))
     }
 
     public render() {

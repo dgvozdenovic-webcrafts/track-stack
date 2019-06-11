@@ -15,4 +15,9 @@ export const onceGetUsers = async () => {
     return newdb.ref('users').once('value')
 }
 
+export const onceGetUsersStream = async (callback) => {
+    const newdb = await db()
+    return newdb.ref('users').on('value', callback)
+}
+
 // Other db APIs ...
