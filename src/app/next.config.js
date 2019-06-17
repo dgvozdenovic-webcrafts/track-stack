@@ -1,2 +1,13 @@
-const withTypescript = require('@zeit/next-typescript')
-module.exports = withTypescript({ distDir: '../../dist/functions/next' })
+const withTypescript = require("@zeit/next-typescript");
+const withSass = require("@zeit/next-sass");
+
+module.exports = withTypescript(
+  withSass({
+    webpack(config, options) {
+      return config;
+    },
+    cssModules: true,
+    sassLoaderOptions: {},
+    distDir: '../../dist/functions/next',
+  })
+);
