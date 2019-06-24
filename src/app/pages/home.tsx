@@ -1,3 +1,6 @@
+import Box from '@material-ui/core/Box'
+import Container from '@material-ui/core/Container'
+import Typography from '@material-ui/core/Typography'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
@@ -37,7 +40,14 @@ class HomePage extends Component<IHomePageProps, IHomePageState> {
                 <h1>Home</h1>
                 <p>The Home Page is accessible by every signed in user.</p>
 
-                {!!users.length && <UserList users={users} />}
+                <Container maxWidth='xl'>
+                    <Box my={4}>
+                        <Typography color='secondary' variant='h4' component='h1' gutterBottom={true}>
+                            Home
+                        </Typography>
+                        {!!users.length && <UserList users={users} />}
+                    </Box>
+                </Container>
             </AppWithAuthorization>
         )
     }
