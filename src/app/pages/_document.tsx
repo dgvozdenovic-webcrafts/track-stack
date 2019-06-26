@@ -58,8 +58,8 @@ MyDocument.getInitialProps = async (ctx) => {
     // 4. page.render
 
     // Render app and page and get the context of the page with collected side effects.
-    const sheets = new ServerStyleSheets();
-    const originalRenderPage = ctx.renderPage;
+    const sheets = new ServerStyleSheets()
+    const originalRenderPage = ctx.renderPage
 
     ctx.renderPage = () =>
         originalRenderPage({

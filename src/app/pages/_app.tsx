@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@material-ui/styles'
 import withRedux from 'next-redux-wrapper'
 import App, { Container } from 'next/app'
 import React from 'react'
@@ -5,6 +6,7 @@ import { Provider } from 'react-redux'
 
 import ReduxDevTools from '../components/DevTools'
 import initStore from '../store'
+import theme from '../styles/theme'
 interface IEnhancedAppProps {
   store: any,
 }
@@ -23,7 +25,9 @@ class EnhancedApp extends App<IEnhancedAppProps> {
       <Container>
         <Provider store={store}>
           <ReduxDevTools />
-          <Component {...pageProps} />
+          <ThemeProvider theme={theme}>
+            <Component {...pageProps} />
+          </ThemeProvider>
         </Provider>
       </Container>
     )

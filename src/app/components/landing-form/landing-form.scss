@@ -1,0 +1,48 @@
+@import '../../styles/theme.scss';
+
+$wrapperWidth: 800px;
+$wrapperHeigth: 480px;
+$sliderHeightMod: 60px;
+$sliderWidthMod: 30px;
+
+.paper{
+    width: $wrapperWidth;
+    height: $wrapperHeigth;
+    display: flex;
+    position: relative;
+    margin: 50px;
+    background-color: mat-primary-color(A400) !important;
+    
+    .side{
+        flex: 1 auto;
+        margin: 80px 40px;
+        color: white;
+        .title {
+            margin-bottom: 40px;
+        }
+
+        .description {
+            margin-bottom: 40px;
+        }
+    }
+
+    .slide{
+        position: absolute;
+        top: -$sliderHeightMod/2;
+        height: $wrapperHeigth + $sliderHeightMod;
+        width: $wrapperWidth / 2 - $sliderWidthMod;
+        transition:left 0.1s linear;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &.left{
+            left: $sliderWidthMod;
+        }
+
+        &.right{
+            left: $wrapperWidth / 2;
+        }
+    }
+}
