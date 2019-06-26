@@ -3,6 +3,7 @@
     "rules": {
       "quotemark": [true, "single"],
       "no-submodule-imports": false,
+      "jsx-boolean-value":  ["never"],
       "semicolon": [true, "never"]
     }
   }

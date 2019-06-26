@@ -1,10 +1,31 @@
+import {
+    Button,
+    Grid,
+    TextField,
+    Typography,
+    withStyles,
+} from '@material-ui/core'
 import Router from 'next/router'
 import React, { Component } from 'react'
 
-import { Paper } from '@material-ui/core'
 import * as routes from '../../const/routes'
 import { auth } from '../../firebase'
 import * as styles from './login.scss'
+
+const FormatedButton = withStyles(() => ({
+    root: {
+        marginBottom: '8px',
+        marginTop: '72px',
+    },
+}))(Button)
+
+const FormatedInput = withStyles(() => ({
+    root: {
+        marginBottom: '0',
+        marginTop: '8px',
+        width: '260px',
+    },
+}))(TextField)
 
 const INITIAL_STATE: ISignInFormState = {
     email: '',
@@ -42,7 +63,7 @@ class Login extends Component<{}, ISignInFormState> {
     }
 
     public onUpdate(propName: keyof ISignInFormState) {
-        return (event) =>
+        return (event: React.ChangeEvent<HTMLInputElement>) =>
             this.setState(updateByPropertyName(propName, event.target.value))
     }
 
@@ -52,28 +73,54 @@ class Login extends Component<{}, ISignInFormState> {
         const isInvalid = password === '' || email === ''
 
         return (
-            <Paper className={styles.wrapper}>
 
-                <form onSubmit={this.onSubmit}>
-                    <input
-                        value={email}
-                        onChange={this.onUpdate('email')}
-                        type='text'
-                        placeholder='Email Address'
-                    />
-                    <input
-                        value={password}
-                        onChange={this.onUpdate('password')}
-                        type='password'
-                        placeholder='Password'
-                    />
-                    <button disabled={isInvalid} type='submit'>
-                        Sign In
-        </button>
-
-                    {error && <p>{error.message}</p>}
-                </form>
-            </Paper>
+            <form className={styles.wrapper} onSubmit={this.onSubmit}>
+                <Grid container spacing={1}>
+                    <Grid item xs={12}>
+                        <Typography className={styles.title} variant='h5'>
+                            Account Log In:
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormatedInput
+                            required={true}
+                            value={email}
+                            id='outlined-required'
+                            label='Email Address'
+                            margin='normal'
+                            placeholder='Enter email'
+                            variant='outlined'
+                            onChange={this.onUpdate('email')}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormatedInput
+                            required={true}
+                            value={password}
+                            id='outlined-required'
+                            label='Password'
+                            margin='normal'
+                            placeholder='Enter password'
+                            variant='outlined'
+                            type='password'
+                            onChange={this.onUpdate('password')}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormatedButton
+                            disabled={isInvalid}
+                            variant='contained'
+                            color='primary'
+                            type='submit'
+                        >
+                            Sign Up
+                        </FormatedButton>
+                    </Grid>
+                    <Grid item xs={12}>
+                        {error && <p>{error.message}</p>}
+                    </Grid>
+                </Grid>
+            </form>
         )
     }
 }

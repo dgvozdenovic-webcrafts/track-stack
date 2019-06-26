@@ -3,17 +3,14 @@ import {
     Paper,
     Typography,
     withStyles,
-} from '@material-ui/core';
+} from '@material-ui/core'
 import React, { PureComponent, ReactElement } from 'react'
 
+import Login from '../Login/login'
 import * as styles from './landing-form.scss'
 
 interface IState {
     sliderMoved: boolean
-}
-
-interface IProps {
-
 }
 
 const ColorButton = withStyles(() => ({
@@ -23,7 +20,7 @@ const ColorButton = withStyles(() => ({
     },
 }))(Button)
 
-export default class LandingForm extends PureComponent<IProps, IState> {
+export default class LandingForm extends PureComponent<{}, IState> {
 
     constructor(props) {
         super(props)
@@ -112,7 +109,7 @@ export default class LandingForm extends PureComponent<IProps, IState> {
                     {this.renderLoginInfo()}
                 </div>
                 <Paper className={`${styles.slide} ${sliderMoved ? styles.left : styles.right}`}>
-                    {sliderMoved ? <div>SignUp</div> : <div>LogIn</div>}
+                    {sliderMoved ? <div>SignUp</div> : <Login />}
                 </Paper>
             </Paper>
         )
