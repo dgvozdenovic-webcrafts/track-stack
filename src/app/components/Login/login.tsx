@@ -7,8 +7,10 @@ import {
 } from '@material-ui/core'
 import Router from 'next/router'
 import React, { Component } from 'react'
+import { ReCaptcha } from 'react-recaptcha-google'
 
 import * as routes from '../../const/routes'
+import config from '../../const/config'
 import { auth } from '../../firebase'
 import * as styles from './login.scss'
 
@@ -31,19 +33,50 @@ const INITIAL_STATE: ISignInFormState = {
     email: '',
     error: null,
     password: '',
+    validCapcha: false,
 }
 
 interface ISignInFormState {
     email: string,
     error: any,
     password: string,
+    validCapcha: boolean,
 }
 
 class Login extends Component<{}, ISignInFormState> {
+
+    captchaDemo: any
+
     constructor(props) {
         super(props)
 
         this.state = { ...INITIAL_STATE }
+
+        this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
+        this.verifyCallback = this.verifyCallback.bind(this);
+    }
+
+    public componentDidMount() {
+        if (this.captchaDemo) {
+            console.log('started, just a second...')
+            this.captchaDemo.reset();
+        }
+    }
+
+    public onLoadRecaptcha() {
+        if (this.captchaDemo) {
+            this.captchaDemo.reset();
+        }
+        this.setState({
+            validCapcha: false
+        })
+    }
+    public verifyCallback(recaptchaToken) {
+        // Here you will get the final recaptchaToken!!!  
+        console.log(recaptchaToken, '<= your recaptcha token')
+        this.setState({
+            validCapcha: true
+        })
     }
 
     public onSubmit = (event) => {
@@ -68,9 +101,8 @@ class Login extends Component<{}, ISignInFormState> {
     }
 
     public render() {
-        const { email, password, error } = this.state
-
-        const isInvalid = password === '' || email === ''
+        const { validCapcha, email, password, error } = this.state
+        const isInvalid = !validCapcha || password === '' || email === ''
 
         return (
 
@@ -83,9 +115,9 @@ class Login extends Component<{}, ISignInFormState> {
                     </Grid>
                     <Grid item xs={12}>
                         <FormatedInput
+                            autoComplete='username'
                             required={true}
                             value={email}
-                            id='outlined-required'
                             label='Email Address'
                             margin='normal'
                             placeholder='Enter email'
@@ -95,15 +127,25 @@ class Login extends Component<{}, ISignInFormState> {
                     </Grid>
                     <Grid item xs={12}>
                         <FormatedInput
+                            autoComplete='current-password'
                             required={true}
                             value={password}
-                            id='outlined-required'
                             label='Password'
                             margin='normal'
                             placeholder='Enter password'
                             variant='outlined'
                             type='password'
                             onChange={this.onUpdate('password')}
+                        />
+                    </Grid>
+                    <Grid item xs={12} className={styles.recaptcha}>
+                        <ReCaptcha
+                            ref={(el) => { this.captchaDemo = el; }}
+                            size='normal'
+                            render='explicit'
+                            sitekey={config.recapcha.siteKey}
+                            onloadCallback={this.onLoadRecaptcha}
+                            verifyCallback={this.verifyCallback}
                         />
                     </Grid>
                     <Grid item xs={12}>

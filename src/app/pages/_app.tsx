@@ -2,6 +2,7 @@ import { ThemeProvider } from '@material-ui/styles'
 import withRedux from 'next-redux-wrapper'
 import App, { Container } from 'next/app'
 import React from 'react'
+import { loadReCaptcha } from 'react-recaptcha-google'
 import { Provider } from 'react-redux'
 
 import ReduxDevTools from '../components/DevTools'
@@ -17,6 +18,9 @@ class EnhancedApp extends App<IEnhancedAppProps> {
         ? await Component.getInitialProps(ctx)
         : {},
     }
+  }
+  public componentDidMount() {
+    loadReCaptcha()
   }
 
   public render() {
