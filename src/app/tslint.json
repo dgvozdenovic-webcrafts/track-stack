@@ -4,6 +4,7 @@
       "quotemark": [true, "single"],
       "no-submodule-imports": false,
       "jsx-boolean-value":  ["never"],
-      "semicolon": [true, "never"]
+      "semicolon": [true, "never"],
+      "jsx-no-multiline-js": false
     }
   }

@@ -1,23 +1,27 @@
 import {
     Button,
     Grid,
+    InputAdornment,
+    LinearProgress,
     TextField,
+    Tooltip,
     Typography,
     withStyles,
 } from '@material-ui/core'
+import ErrorIcon from '@material-ui/icons/Error'
 import Router from 'next/router'
 import React, { Component } from 'react'
-import { ReCaptcha } from 'react-recaptcha-google'
 
-import * as routes from '../../const/routes'
 import config from '../../const/config'
+import * as routes from '../../const/routes'
 import { auth } from '../../firebase'
+import withRecapcha, { IWithRepachaProps } from '../../hoc/withRecapcha'
 import * as styles from './login.scss'
 
 const FormatedButton = withStyles(() => ({
     root: {
         marginBottom: '8px',
-        marginTop: '72px',
+        marginTop: '32px',
     },
 }))(Button)
 
@@ -28,6 +32,31 @@ const FormatedInput = withStyles(() => ({
         width: '260px',
     },
 }))(TextField)
+
+const BorderLinearProgress = withStyles({
+    bar: (props) => ({
+        backgroundColor: passwordColor[props.value],
+        borderRadius: 4,
+    }),
+    root: {
+        borderRadius: 4,
+        height: 40,
+        margin: '16px 0 8px 0',
+    },
+})(LinearProgress)
+
+const passwordColor = {
+    1: 'transparent',
+    34: '#ffff00',
+    67: '#eeff41',
+    100: '#c6ff00',
+}
+
+const passwordStrengthLabels = {
+    2: 'Medium',
+    3: 'Strong',
+    4: 'Very Strong',
+}
 
 const INITIAL_STATE: ISignInFormState = {
     email: '',
@@ -43,40 +72,12 @@ interface ISignInFormState {
     validCapcha: boolean,
 }
 
-class Login extends Component<{}, ISignInFormState> {
-
-    captchaDemo: any
+class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
 
     constructor(props) {
         super(props)
 
         this.state = { ...INITIAL_STATE }
-
-        this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
-        this.verifyCallback = this.verifyCallback.bind(this);
-    }
-
-    public componentDidMount() {
-        if (this.captchaDemo) {
-            console.log('started, just a second...')
-            this.captchaDemo.reset();
-        }
-    }
-
-    public onLoadRecaptcha() {
-        if (this.captchaDemo) {
-            this.captchaDemo.reset();
-        }
-        this.setState({
-            validCapcha: false
-        })
-    }
-    public verifyCallback(recaptchaToken) {
-        // Here you will get the final recaptchaToken!!!  
-        console.log(recaptchaToken, '<= your recaptcha token')
-        this.setState({
-            validCapcha: true
-        })
     }
 
     public onSubmit = (event) => {
@@ -101,8 +102,11 @@ class Login extends Component<{}, ISignInFormState> {
     }
 
     public render() {
-        const { validCapcha, email, password, error } = this.state
+        const { email, password, error } = this.state
+        const { validCapcha } = this.props
+        const isEmailInvalid = email !== '' && !validateEmail(email)
         const isInvalid = !validCapcha || password === '' || email === ''
+        const passwordStrength = ratePassword(password)
 
         return (
 
@@ -115,6 +119,7 @@ class Login extends Component<{}, ISignInFormState> {
                     </Grid>
                     <Grid item xs={12}>
                         <FormatedInput
+                            error={isEmailInvalid}
                             autoComplete='username'
                             required={true}
                             value={email}
@@ -125,8 +130,9 @@ class Login extends Component<{}, ISignInFormState> {
                             onChange={this.onUpdate('email')}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} className={styles.passwordWrapper}>
                         <FormatedInput
+                            error={passwordStrength === 1}
                             autoComplete='current-password'
                             required={true}
                             value={password}
@@ -136,17 +142,42 @@ class Login extends Component<{}, ISignInFormState> {
                             variant='outlined'
                             type='password'
                             onChange={this.onUpdate('password')}
+                            InputProps={{
+                                endAdornment: (
+                                    passwordStrength === 1 ? <InputAdornment position='end'>
+                                        <Tooltip
+                                            placement='left'
+                                            title={
+                                                <React.Fragment>
+                                                    <Typography color='error'>Invalid Password</Typography>
+                                                    <p>
+                                                        1. Password must contain at least six characters or more.
+                                                        <br />
+                                                        {`2. Password must have at least one lowercase and one
+                                                        uppercase alphabetical
+                                                        character or at least one numberic character`}
+                                                    </p>
+                                                </React.Fragment>
+                                            }
+                                        >
+                                            <ErrorIcon color='error' />
+                                        </Tooltip>
+
+                                    </InputAdornment> : null
+                                ),
+                            }}
                         />
+                        <BorderLinearProgress
+                            variant='determinate'
+                            color='primary'
+                            value={(passwordStrength - 1) * 33 + 1}
+                        />
+                        <div className={styles.passwordStrengthLabel}>
+                            <Typography color='primary'>{passwordStrengthLabels[passwordStrength]}</Typography>
+                        </div>
                     </Grid>
                     <Grid item xs={12} className={styles.recaptcha}>
-                        <ReCaptcha
-                            ref={(el) => { this.captchaDemo = el; }}
-                            size='normal'
-                            render='explicit'
-                            sitekey={config.recapcha.siteKey}
-                            onloadCallback={this.onLoadRecaptcha}
-                            verifyCallback={this.verifyCallback}
-                        />
+                        {this.props.renderCapcha()}
                     </Grid>
                     <Grid item xs={12}>
                         <FormatedButton
@@ -172,4 +203,25 @@ const updateByPropertyName: (propertyName: string, value: any) => () => any =
         [propertyName]: value,
     })
 
-export default Login
+const validateEmail = (email: string): boolean =>
+    // tslint:disable-next-line
+    /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        .test(String(email).toLowerCase())
+
+/**
+ * @param password string password to be validated
+ * @returns 1 for invalid, 2 for medium, 3 for strong, 4 for extremly strong
+ */
+const ratePassword = (password: string): 0 | 1 | 2 | 3 | 4 => {
+    // tslint:disable-next-line
+    const mediumRegex = new RegExp('^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})')
+    const strongRegex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})')
+    const extremeRegex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{16,})')
+
+    return extremeRegex.test(password) ? 4
+        : strongRegex.test(password) ? 3
+            : mediumRegex.test(password) ? 2
+                : password ? 1 : 0
+}
+
+export default withRecapcha(config.recapcha.siteKey)(Login)
