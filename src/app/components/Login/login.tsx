@@ -2,7 +2,6 @@ import {
     Button,
     Grid,
     InputAdornment,
-    LinearProgress,
     TextField,
     Tooltip,
     Typography,
@@ -11,11 +10,17 @@ import {
 import ErrorIcon from '@material-ui/icons/Error'
 import Router from 'next/router'
 import React, { Component } from 'react'
+import { compose } from 'redux'
 
 import config from '../../const/config'
 import * as routes from '../../const/routes'
 import { auth } from '../../firebase'
 import withRecapcha, { IWithRepachaProps } from '../../hoc/withRecapcha'
+import withSnackbar, { IWithSnackbarProps } from '../../hoc/withSnackbar'
+import {
+    ratePassword,
+    validateEmail,
+} from '../../utilities/validation.util'
 import * as styles from './login.scss'
 
 const FormatedButton = withStyles(() => ({
@@ -33,31 +38,6 @@ const FormatedInput = withStyles(() => ({
     },
 }))(TextField)
 
-const BorderLinearProgress = withStyles({
-    bar: (props) => ({
-        backgroundColor: passwordColor[props.value],
-        borderRadius: 4,
-    }),
-    root: {
-        borderRadius: 4,
-        height: 40,
-        margin: '16px 0 8px 0',
-    },
-})(LinearProgress)
-
-const passwordColor = {
-    1: 'transparent',
-    34: '#ffff00',
-    67: '#eeff41',
-    100: '#c6ff00',
-}
-
-const passwordStrengthLabels = {
-    2: 'Medium',
-    3: 'Strong',
-    4: 'Very Strong',
-}
-
 const INITIAL_STATE: ISignInFormState = {
     email: '',
     error: null,
@@ -72,7 +52,7 @@ interface ISignInFormState {
     validCapcha: boolean,
 }
 
-class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
+class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISignInFormState> {
 
     constructor(props) {
         super(props)
@@ -82,7 +62,6 @@ class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
 
     public onSubmit = (event) => {
         const { email, password } = this.state
-
         auth
             .doSignInWithEmailAndPassword(email, password)
             .then(() => {
@@ -90,7 +69,11 @@ class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
                 Router.push(routes.HOME)
             })
             .catch((error) => {
-                this.setState(updateByPropertyName('error', error))
+                this.props.showSnackbar({
+                    message: (<span >{error}</span>),
+                    open: true,
+                })
+                this.setState(updateState('error', error))
             })
 
         event.preventDefault()
@@ -98,7 +81,7 @@ class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
 
     public onUpdate(propName: keyof ISignInFormState) {
         return (event: React.ChangeEvent<HTMLInputElement>) =>
-            this.setState(updateByPropertyName(propName, event.target.value))
+            this.setState(updateState(propName, event.target.value))
     }
 
     public render() {
@@ -167,14 +150,6 @@ class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
                                 ),
                             }}
                         />
-                        <BorderLinearProgress
-                            variant='determinate'
-                            color='primary'
-                            value={(passwordStrength - 1) * 33 + 1}
-                        />
-                        <div className={styles.passwordStrengthLabel}>
-                            <Typography color='primary'>{passwordStrengthLabels[passwordStrength]}</Typography>
-                        </div>
                     </Grid>
                     <Grid item xs={12} className={styles.recaptcha}>
                         {this.props.renderCapcha()}
@@ -198,30 +173,14 @@ class Login extends Component<{} & IWithRepachaProps, ISignInFormState> {
     }
 }
 
-const updateByPropertyName: (propertyName: string, value: any) => () => any =
-    (propertyName: string, value: any) => () => ({
-        [propertyName]: value,
-    })
+const updateState = <T extends string>(key: keyof ISignInFormState, value: T) => (
+    prevState: ISignInFormState,
+): ISignInFormState => ({
+    ...prevState,
+    [key]: value,
+})
 
-const validateEmail = (email: string): boolean =>
-    // tslint:disable-next-line
-    /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        .test(String(email).toLowerCase())
-
-/**
- * @param password string password to be validated
- * @returns 1 for invalid, 2 for medium, 3 for strong, 4 for extremly strong
- */
-const ratePassword = (password: string): 0 | 1 | 2 | 3 | 4 => {
-    // tslint:disable-next-line
-    const mediumRegex = new RegExp('^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})')
-    const strongRegex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})')
-    const extremeRegex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{16,})')
-
-    return extremeRegex.test(password) ? 4
-        : strongRegex.test(password) ? 3
-            : mediumRegex.test(password) ? 2
-                : password ? 1 : 0
-}
-
-export default withRecapcha(config.recapcha.siteKey)(Login)
+export default compose(
+    withRecapcha(config.recapcha.siteKey),
+    withSnackbar(),
+)(Login)

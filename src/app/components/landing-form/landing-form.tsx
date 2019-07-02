@@ -7,6 +7,7 @@ import {
 import React, { PureComponent, ReactElement } from 'react'
 
 import Login from '../Login/login'
+import Signup from '../Signup/signup'
 import * as styles from './landing-form.scss'
 
 interface IState {
@@ -109,7 +110,7 @@ export default class LandingForm extends PureComponent<{}, IState> {
                     {this.renderLoginInfo()}
                 </div>
                 <Paper className={`${styles.slide} ${sliderMoved ? styles.left : styles.right}`}>
-                    {sliderMoved ? <div>SignUp</div> : <Login />}
+                    {sliderMoved ? <Signup /> : <Login />}
                 </Paper>
             </Paper>
         )

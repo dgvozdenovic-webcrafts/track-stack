@@ -1,0 +1,32 @@
+@import '../../styles/theme.scss';
+.wrapper{
+    padding: 25px;
+    width: 100%;
+    box-sizing: border-box;
+
+    .title{
+        margin-bottom: 20px;
+        color:  mat-primary-color(500) !important;
+    }
+
+    .recaptcha {
+        margin-top: 8px !important; 
+        transform:scale(0.86);
+        -webkit-transform:scale(0.86);
+        transform-origin:0 0;
+        -webkit-transform-origin:0 0;
+    }
+    .passwordWrapper{
+        position: relative;
+
+        .passwordStrengthLabel {
+            position: absolute;
+            bottom: 7px;
+            left: 16px;
+        }
+    }
+
+    .backButton{
+        margin-right: 8px;
+    }
+}

@@ -19,4 +19,7 @@ const theme = createMuiTheme({
     },
 })
 
+export const warning = '#FFC107'
+export const success = '#4CAF50'
+
 export default theme
