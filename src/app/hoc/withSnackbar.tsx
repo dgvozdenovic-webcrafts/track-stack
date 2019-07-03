@@ -1,5 +1,5 @@
 import { IconButton, SnackbarContent, withStyles } from '@material-ui/core'
-import Snackbar, { SnackbarProps } from '@material-ui/core/Snackbar'
+import Snackbar, { SnackbarOrigin, SnackbarProps } from '@material-ui/core/Snackbar'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import CloseIcon from '@material-ui/icons/Close'
 import ErrorIcon from '@material-ui/icons/Error'
@@ -10,27 +10,18 @@ import React from 'react'
 import theme, { success, warning } from '../styles/theme'
 
 export interface IWithSnackbarState {
-    vertical?: any,
-    horizontal?: any,
+    vertical?: SnackbarOrigin['vertical'],
+    horizontal?: SnackbarOrigin['horizontal'],
     message: string,
     onClose?: () => void,
-    autohide?: number,
+    autohide?: SnackbarProps['autoHideDuration'],
     variant: 'success' | 'warning' | 'error' | 'info',
     open: boolean,
 }
 
 export interface IWithSnackbarProps {
     hideSnackbar: () => void,
-    showSnackbar: (SnackbarProps: SnackbarProps) => void,
-}
-
-const INITIAL_PROPS: IWithSnackbarState = {
-    horizontal: 'left',
-    message: 'Informaciones',
-    onClose: () => false,
-    open: true,
-    variant: 'info',
-    vertical: 'bottom',
+    showSnackbar: (SnackbarProps: Omit<IWithSnackbarState, 'open'>) => void,
 }
 
 const variantIcon = {
@@ -56,11 +47,12 @@ const withSnackbar = () => (Component) => {
             super(props)
 
             this.state = {
-                ...INITIAL_PROPS,
+                ...this.getInitalProps(),
             }
 
             this.showSnackbar = this.showSnackbar.bind(this)
             this.hideSnackbar = this.hideSnackbar.bind(this)
+            this.getInitalProps = this.getInitalProps.bind(this)
         }
 
         public showSnackbar(snackBarConfig: Omit<IWithSnackbarState, 'open'>) {
@@ -72,8 +64,19 @@ const withSnackbar = () => (Component) => {
 
         public hideSnackbar() {
             this.setState({
-                ...INITIAL_PROPS,
+                ...this.getInitalProps(),
             })
+        }
+
+        public getInitalProps(): IWithSnackbarState {
+            return {
+                horizontal: 'right',
+                message: 'Informaciones',
+                onClose: this.hideSnackbar.bind(this),
+                open: false,
+                variant: 'info',
+                vertical: 'top',
+            }
         }
 
         public renderSnackbar(variant, message, onClose) {
@@ -118,23 +121,38 @@ const withSnackbar = () => (Component) => {
                 showSnackbar: this.showSnackbar,
             }
 
-            const { vertical, horizontal, open, message, variant, onClose } = this.state
+            const {
+                autohide,
+                vertical = 'bottom',
+                horizontal = 'left',
+                open,
+                message,
+                variant = 'info',
+                onClose,
+            } = this.state
 
             const snackbarProps = {
                 anchorOrigin: {
                     horizontal,
                     vertical,
                 },
+                autoHideDuration: autohide,
                 open,
             }
 
             return (
                 <React.Fragment>
                     <Component {...newProps}{...this.props} />
-                    <Snackbar  {...snackbarProps}>
-                        {this.renderSnackbar(variant, message, onClose)}
-                    </Snackbar>
-
+                    {open &&
+                        <Snackbar
+                            onClose={
+                                onClose || this.hideSnackbar
+                            }
+                            {...snackbarProps}
+                        >
+                            {this.renderSnackbar(variant, message, onClose)}
+                        </Snackbar>
+                    }
                 </React.Fragment>
             )
         }

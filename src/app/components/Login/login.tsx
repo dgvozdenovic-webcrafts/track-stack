@@ -69,6 +69,13 @@ class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISign
                 Router.push(routes.HOME)
             })
             .catch((error) => {
+                this.props.showSnackbar(
+                    {
+                        autohide: 3000,
+                        message: error.message,
+                        variant: 'error',
+                    },
+                )
                 this.setState(updateState('error', error))
             })
 
