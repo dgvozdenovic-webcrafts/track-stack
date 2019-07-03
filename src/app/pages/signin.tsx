@@ -2,16 +2,14 @@
 import React from 'react'
 
 import { AppWithAuthentication } from '../components/App'
-import Login from '../components/Login/login'
+import LandingForm from '../components/landing-form/landing-form'
 import { PasswordForgetLink } from './pw-forget'
-import { SignUpLink } from './signup'
 
 const SignInPage = () => (
     <AppWithAuthentication>
         <h1>SignIn</h1>
-        <Login />
+        <LandingForm />
         <PasswordForgetLink />
-        <SignUpLink />
     </AppWithAuthentication>
 )
 

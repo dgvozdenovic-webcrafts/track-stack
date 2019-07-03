@@ -1,13 +1,15 @@
 import React from 'react'
 import { compose } from 'recompose'
 
-import withAuthentication from '../../session/withAuthentication'
-import withAuthorization from '../../session/withAuthorization'
+import withAuthentication from '../../hoc/withAuthentication'
+import withAuthorization from '../../hoc/withAuthorization'
 import Navigation from '../Navigation'
+import SnackbarModal from '../snackbar-modal/snackbar-modal'
 
 const App = ({ children }) => (
     <div className='app'>
         <Navigation />
+        <SnackbarModal />
         <hr />
         {children}
         <hr />

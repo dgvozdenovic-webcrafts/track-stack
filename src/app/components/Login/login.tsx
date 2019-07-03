@@ -16,7 +16,7 @@ import config from '../../const/config'
 import * as routes from '../../const/routes'
 import { auth } from '../../firebase'
 import withRecapcha, { IWithRepachaProps } from '../../hoc/withRecapcha'
-import withSnackbar, { IWithSnackbarProps } from '../../hoc/withSnackbar'
+import withSnackbarActions, { IWithSnackbarActionsProps } from '../../hoc/withSnackbarActions'
 import {
     ratePassword,
     validateEmail,
@@ -52,7 +52,7 @@ interface ISignInFormState {
     validCapcha: boolean,
 }
 
-class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISignInFormState> {
+class Login extends Component<{} & IWithRepachaProps & IWithSnackbarActionsProps, ISignInFormState> {
 
     constructor(props) {
         super(props)
@@ -69,7 +69,7 @@ class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISign
                 Router.push(routes.HOME)
             })
             .catch((error) => {
-                this.props.showSnackbar(
+                this.props.openSnackbar(
                     {
                         autohide: 3000,
                         message: error.message,
@@ -88,7 +88,7 @@ class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISign
     }
 
     public render() {
-        const { email, password, error } = this.state
+        const { email, password } = this.state
         const { validCapcha } = this.props
         const isEmailInvalid = email !== '' && !validateEmail(email)
         const isInvalid = !validCapcha || password === '' || email === ''
@@ -167,9 +167,6 @@ class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps, ISign
                             Sign Up
                         </FormatedButton>
                     </Grid>
-                    <Grid item xs={12}>
-                        {error && <p>{error.message}</p>}
-                    </Grid>
                 </Grid>
             </form>
         )
@@ -185,5 +182,5 @@ const updateState = <T extends string>(key: keyof ISignInFormState, value: T) =>
 
 export default compose(
     withRecapcha(config.recapcha.siteKey),
-    withSnackbar(),
+    withSnackbarActions(),
 )(Login)
