@@ -17,8 +17,8 @@ export interface ISnackbarState {
 
 const INITIAL_STATE: ISnackbarState = {
     horizontal: 'right',
-    message: 'Informaciones',
-    open: true,
+    message: '',
+    open: false,
     variant: 'info',
     vertical: 'top',
 }

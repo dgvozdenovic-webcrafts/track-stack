@@ -5,7 +5,6 @@ import React from 'react'
 import { loadReCaptcha } from 'react-recaptcha-google'
 import { Provider } from 'react-redux'
 
-import ReduxDevTools from '../components/DevTools'
 import initStore from '../store'
 import theme from '../styles/theme'
 interface IEnhancedAppProps {
@@ -28,7 +27,6 @@ class EnhancedApp extends App<IEnhancedAppProps> {
     return (
       <Container>
         <Provider store={store}>
-          <ReduxDevTools />
           <ThemeProvider theme={theme}>
             <Component {...pageProps} />
           </ThemeProvider>
