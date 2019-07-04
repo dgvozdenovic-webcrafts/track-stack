@@ -15,8 +15,9 @@ import { compose } from 'redux'
 import config from '../../const/config'
 import * as routes from '../../const/routes'
 import { auth } from '../../firebase'
+import withDialog, { IWithDialogProps } from '../../hoc/withDialog'
 import withRecapcha, { IWithRepachaProps } from '../../hoc/withRecapcha'
-import withSnackbarActions, { IWithSnackbarActionsProps } from '../../hoc/withSnackbarActions'
+import withSnackbar, { IWithSnackbarProps } from '../../hoc/withSnackbar'
 import {
     ratePassword,
     validateEmail,
@@ -52,7 +53,7 @@ interface ISignInFormState {
     validCapcha: boolean,
 }
 
-class Login extends Component<{} & IWithRepachaProps & IWithSnackbarActionsProps, ISignInFormState> {
+class Login extends Component<{} & IWithRepachaProps & IWithSnackbarProps & IWithDialogProps, ISignInFormState> {
 
     constructor(props) {
         super(props)
@@ -182,5 +183,6 @@ const updateState = <T extends string>(key: keyof ISignInFormState, value: T) =>
 
 export default compose(
     withRecapcha(config.recapcha.siteKey),
-    withSnackbarActions(),
+    withSnackbar(),
+    withDialog(),
 )(Login)

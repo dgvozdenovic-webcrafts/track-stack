@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { ISnackbarState, SnackbarActions } from '../reducers/snackbar'
 
-export interface IWithSnackbarActionsProps {
+export interface IWithSnackbarProps {
     closeSnackbar: () => void,
     openSnackbar: (SnackbarProps: Omit<ISnackbarState, 'open'>) => void,
 
@@ -12,8 +12,8 @@ export interface IWithSnackbarActionsProps {
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
-const withSnackbarActions = () => (Component) => {
-    class WithSnackbarActions extends React.Component<IWithSnackbarActionsProps> {
+const withSnackbar = () => (Component) => {
+    class WithSnackbar extends React.Component<IWithSnackbarProps> {
         public render() {
 
             const { closeSnackbar, openSnackbar } = this.props
@@ -35,7 +35,7 @@ const withSnackbarActions = () => (Component) => {
         openSnackbar: (config) => dispatch({ type: SnackbarActions.OPEN_SNACKBAR, config }),
     })
 
-    return connect(null, mapDispatchToProps)(WithSnackbarActions)
+    return connect(null, mapDispatchToProps)(WithSnackbar)
 }
 
-export default withSnackbarActions
+export default withSnackbar
