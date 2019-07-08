@@ -5,16 +5,18 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import { AppWithAuthorization } from '../components/App'
-import { db } from '../firebase'
+import { db, image } from '../firebase'
 import { UserActions } from '../reducers/user'
+import ImageUpload from '../components/upload-button/upload-button'
 
 interface IHomePageProps {
     users: any,
+    userId: string,
     onSetUsers: (IFromObjectToList) => void
 }
 
 interface IHomePageState {
-    userState: any,
+    images: any[],
 }
 
 type IFromObjectToList = typeof fromObjectToList
@@ -24,16 +26,37 @@ const fromObjectToList = (object) =>
         ? Object.keys(object).map((key) => ({ ...object[key], index: key }))
         : []
 
+const previewStyle = {
+    maxHeight: '100px',
+    maxWidth: '100px',
+}
+
 class HomePage extends Component<IHomePageProps, IHomePageState> {
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            images: [],
+        }
+    }
+
     public componentDidMount() {
-        const { onSetUsers } = this.props
+        const { onSetUsers, userId } = this.props
 
         db.streamGetUsers((snapshot) =>
             onSetUsers(fromObjectToList(snapshot.val())))
+
+        image.streamImages(userId, (snapshot) =>
+            this.setState({
+                images: [...fromObjectToList(snapshot.val())],
+            }),
+        )
     }
 
     public render() {
-        const { users } = this.props
+        const { userId, users } = this.props
+        const { images } = this.state
 
         return (
             <AppWithAuthorization>
@@ -45,10 +68,14 @@ class HomePage extends Component<IHomePageProps, IHomePageState> {
                         <Typography color='secondary' variant='h4' component='h1' gutterBottom={true}>
                             Home
                         </Typography>
+                        <ImageUpload userId={userId} />
                         {!!users.length && <UserList users={users} />}
                     </Box>
+                    <Box my={12}>
+                        {images.map((img) => <img src={img.url} key={img.url} style={previewStyle} />)}
+                    </Box>
                 </Container>
-            </AppWithAuthorization>
+            </AppWithAuthorization >
         )
     }
 }
@@ -61,6 +88,7 @@ const UserList = ({ users }) => (
 )
 
 const mapStateToProps = (state) => ({
+    userId: state.sessionState.userId,
     users: state.userState.users,
 })
 

@@ -12,7 +12,7 @@ if (!firebase.apps.length) {
 }
 
 const db = async () => firebase.database()
+const storage = async () => firebase.storage()
 const auth = firebase.auth()
-const storage = firebase.storage()
 
 export { db, auth, storage }
